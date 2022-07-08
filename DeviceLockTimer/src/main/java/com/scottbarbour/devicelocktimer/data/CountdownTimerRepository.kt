@@ -1,4 +1,4 @@
 package com.scottbarbour.devicelocktimer.data
 
-class CountdownTimerRepository() {
+class CountdownTimerRepository(private val remoteDataSource: ActiveUsagePeriodDataSource) {
 }
