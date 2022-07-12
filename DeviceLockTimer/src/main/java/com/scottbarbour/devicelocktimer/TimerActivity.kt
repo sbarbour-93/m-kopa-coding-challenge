@@ -9,9 +9,9 @@ class TimerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_timer)
         startKoin {
-            timerModules
+            modules(timerModules)
         }
+        setContentView(R.layout.activity_timer)
     }
 }

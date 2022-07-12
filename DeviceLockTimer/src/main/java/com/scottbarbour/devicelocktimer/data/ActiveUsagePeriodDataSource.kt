@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 class ActiveUsagePeriodDataSource {
     suspend fun getLockingInfo(): ActiveUsagePeriod {
         delay(500)
-        return ActiveUsagePeriod(
+        return ActiveUsagePeriod( // TODO: cache this value so not to keep spamming the network
             OffsetDateTime.now().withHour(23).withMinute(0).withSecond(0)
         )
     }
