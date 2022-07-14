@@ -2,6 +2,8 @@ package com.scottbarbour.devicelocktimer.data
 
 import com.scottbarbour.devicelocktimer.data.model.CountryIsoCode
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -34,11 +36,14 @@ class CountdownTimerRepository(
         return countryIsoCodeDataSource.getCountryIsoCode()
     }
 
-    suspend fun getTimeUntilDeviceLocks(): String {
-        val deviceLockTime = getTimeUntilDeviceLock().truncatedTo(ChronoUnit.SECONDS)
-        val currentDeviceTime = deviceTimeDataSource.getCurrentDeviceTime().truncatedTo(ChronoUnit.SECONDS)
+    suspend fun getTimeUntilDeviceLocks(): Flow<String> = flow {
+        while (true) {
+            val deviceLockTime = getTimeUntilDeviceLock().truncatedTo(ChronoUnit.SECONDS)
+            val currentDeviceTime =
+                deviceTimeDataSource.getCurrentDeviceTime().truncatedTo(ChronoUnit.SECONDS)
 
-        return getFriendlyTimeRemaining(deviceLockTime, currentDeviceTime)
+            emit(getFriendlyTimeRemaining(deviceLockTime, currentDeviceTime))
+        }
     }
 
     private fun getFriendlyTimeRemaining(

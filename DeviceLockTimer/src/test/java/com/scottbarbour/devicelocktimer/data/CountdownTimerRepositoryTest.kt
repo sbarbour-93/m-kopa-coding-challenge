@@ -5,6 +5,7 @@ import com.scottbarbour.devicelocktimer.util.TIMER_FORMATTER_PATTERN
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -55,7 +56,7 @@ class CountdownTimerRepositoryTest {
             coEvery { activeUsagePeriodRemoteDataSource.getLockingInfo() } returns mockk(relaxed = true)
             every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockk(relaxed = true)
 
-            repository.getTimeUntilDeviceLocks()
+            repository.getTimeUntilDeviceLocks().first()
 
             coVerify(exactly = 1) { activeUsagePeriodRemoteDataSource.getLockingInfo() }
             coVerify(exactly = 1) { activeUsagePeriodLocalDataSource.storeLockingInfoLocally(any()) }
@@ -68,7 +69,7 @@ class CountdownTimerRepositoryTest {
             justRun { activeUsagePeriodLocalDataSource.storeLockingInfoLocally(any()) }
             every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockk(relaxed = true)
 
-            repository.getTimeUntilDeviceLocks()
+            repository.getTimeUntilDeviceLocks().first()
 
             coVerify(inverse = true) { activeUsagePeriodRemoteDataSource.getLockingInfo() }
             coVerify(inverse = true) { activeUsagePeriodLocalDataSource.storeLockingInfoLocally(any()) }
@@ -88,7 +89,7 @@ class CountdownTimerRepositoryTest {
 
             coEvery { activeUsagePeriodLocalDataSource.getLockingInfo() } returns mockLockingInfo
 
-            val actualResult = repository.getTimeUntilDeviceLocks()
+            val actualResult = repository.getTimeUntilDeviceLocks().first()
 
             assertEquals(expectedResult, actualResult)
         }

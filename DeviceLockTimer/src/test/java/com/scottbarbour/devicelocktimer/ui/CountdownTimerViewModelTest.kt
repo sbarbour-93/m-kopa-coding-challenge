@@ -7,6 +7,7 @@ import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -36,7 +37,7 @@ class CountdownTimerViewModelTest {
         Dispatchers.setMain(StandardTestDispatcher())
 
         MockKAnnotations.init(this, relaxed = true)
-        coEvery { repository.getTimeUntilDeviceLocks() } returns expectedTimerValue
+        coEvery { repository.getTimeUntilDeviceLocks() } returns flowOf(expectedTimerValue)
 
         viewModel = CountdownTimerViewModel(repository)
     }

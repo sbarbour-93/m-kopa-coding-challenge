@@ -15,8 +15,9 @@ class CountdownTimerViewModel(
 
     fun startTimer() {
         viewModelScope.launch {
-            val result = repository.getTimeUntilDeviceLocks()
-            _timeRemainingUntilDeviceLocks.postValue(result)
+            repository.getTimeUntilDeviceLocks().collect { friendlyTime ->
+                _timeRemainingUntilDeviceLocks.postValue(friendlyTime)
+            }
         }
     }
 }
