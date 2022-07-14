@@ -4,7 +4,7 @@ import com.scottbarbour.devicelocktimer.data.model.ActiveUsagePeriod
 import kotlinx.coroutines.delay
 import java.time.OffsetDateTime
 
-class ActiveUsagePeriodDataSource {
+class ActiveUsagePeriodRemoteDataSource {
     suspend fun getLockingInfo(): ActiveUsagePeriod {
         delay(500)
         return ActiveUsagePeriod( // TODO: cache this value so not to keep spamming the network

@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.scottbarbour.devicelocktimer.R
-import com.scottbarbour.devicelocktimer.di.timerModules
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.context.startKoin
 
 class CountdownTimerFragment : Fragment() {
 
@@ -30,6 +28,6 @@ class CountdownTimerFragment : Fragment() {
             activity!!.findViewById<TextView>(R.id.message).text = it
         }
 
-        viewModel.setupTimer()
+        viewModel.startTimer()
     }
 }

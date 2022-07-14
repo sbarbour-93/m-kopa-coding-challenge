@@ -1,9 +1,6 @@
 package com.scottbarbour.devicelocktimer.di
 
-import com.scottbarbour.devicelocktimer.data.ActiveUsagePeriodDataSource
-import com.scottbarbour.devicelocktimer.data.CountdownTimerRepository
-import com.scottbarbour.devicelocktimer.data.CountryIsoCodeDataSource
-import com.scottbarbour.devicelocktimer.data.DeviceTimeDataSource
+import com.scottbarbour.devicelocktimer.data.*
 import com.scottbarbour.devicelocktimer.ui.CountdownTimerViewModel
 import com.scottbarbour.devicelocktimer.util.TIMER_FORMATTER_PATTERN
 import kotlinx.coroutines.Dispatchers
@@ -12,9 +9,10 @@ import org.koin.dsl.module
 import java.time.format.DateTimeFormatter
 
 val timerModules = module {
-    viewModel { CountdownTimerViewModel(get(), Dispatchers.IO) }
-    factory { CountdownTimerRepository(get(), get(), get(), get()) }
-    factory { ActiveUsagePeriodDataSource() }
+    viewModel { CountdownTimerViewModel(get()) }
+    factory { CountdownTimerRepository(get(), get(), get(), get(), get(), Dispatchers.IO) }
+    factory { ActiveUsagePeriodRemoteDataSource() }
+    factory { ActiveUsagePeriodLocalDataSource() }
     factory { CountryIsoCodeDataSource() }
     factory { DeviceTimeDataSource() }
 
