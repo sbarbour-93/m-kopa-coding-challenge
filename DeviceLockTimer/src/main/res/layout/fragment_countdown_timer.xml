@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/countdown_timer"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:id="@+id/countdown_timer_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="60dp"
+    android:paddingVertical="20dp"
     tools:context=".ui.CountdownTimerFragment">
 
     <TextView
@@ -12,9 +15,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="CountdownTimerFragment"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/country"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="UG"
+        app:layout_constraintTop_toBottomOf="@id/message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="15dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

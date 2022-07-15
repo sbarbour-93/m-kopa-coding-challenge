@@ -2,6 +2,8 @@ package com.scottbarbour.devicelocktimer.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.scottbarbour.devicelocktimer.data.CountdownTimerRepository
+import com.scottbarbour.devicelocktimer.data.model.TimerState
+import com.scottbarbour.devicelocktimer.data.model.TimerWarningStatus
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -30,14 +32,17 @@ class CountdownTimerViewModelTest {
 
     private lateinit var viewModel: CountdownTimerViewModel
 
-    private val expectedTimerValue = "05:00:00"
+    private val expectedTimerState = TimerState(
+        "05:00:00",
+        TimerWarningStatus.HEALTHY
+    )
 
     @Before
     fun setup() {
         Dispatchers.setMain(StandardTestDispatcher())
 
         MockKAnnotations.init(this, relaxed = true)
-        coEvery { repository.getTimeUntilDeviceLocks() } returns flowOf(expectedTimerValue)
+        coEvery { repository.getTimerState() } returns flowOf(expectedTimerState)
 
         viewModel = CountdownTimerViewModel(repository)
     }
@@ -46,7 +51,7 @@ class CountdownTimerViewModelTest {
     fun `start timer method calls data layer and posts result to live data property`() = runTest {
         viewModel.startTimer()
         advanceUntilIdle()
-        assertEquals(expectedTimerValue, viewModel.timeRemainingUntilDeviceLocks.value)
+        assertEquals(expectedTimerState, viewModel.timerState.value)
     }
 
 }

@@ -1,6 +1,8 @@
 package com.scottbarbour.devicelocktimer.data
 
 import com.scottbarbour.devicelocktimer.data.model.CountryIsoCode
+import com.scottbarbour.devicelocktimer.data.model.TimerState
+import com.scottbarbour.devicelocktimer.data.model.TimerWarningStatus
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -36,26 +38,63 @@ class CountdownTimerRepository(
         return countryIsoCodeDataSource.getCountryIsoCode()
     }
 
-    suspend fun getTimeUntilDeviceLocks(): Flow<String> = flow {
+    suspend fun getTimerState(): Flow<TimerState> = flow {
         while (true) {
             val deviceLockTime = getTimeUntilDeviceLock().truncatedTo(ChronoUnit.SECONDS)
             val currentDeviceTime =
                 deviceTimeDataSource.getCurrentDeviceTime().truncatedTo(ChronoUnit.SECONDS)
+            val timeRemaining = currentDeviceTime.until(deviceLockTime, ChronoUnit.SECONDS)
+            val countryIsoCode = getCountryIsoCode()
 
-            emit(getFriendlyTimeRemaining(deviceLockTime, currentDeviceTime))
+            val timerStatus = getTimerStatus(countryIsoCode, timeRemaining)
+            val friendlyTimeRemaining = getFriendlyTimeRemaining(timeRemaining)
+
+            emit(TimerState(friendlyTimeRemaining, timerStatus))
         }
     }
 
-    private fun getFriendlyTimeRemaining(
-        deviceLockTime: OffsetDateTime,
-        currentDeviceTime: OffsetDateTime
-    ): String {
+    private fun getTimerStatus(
+        countryIsoCode: CountryIsoCode,
+        timeRemaining: Long
+    ): TimerWarningStatus {
 
-        val timeRemaining = currentDeviceTime.until(deviceLockTime, ChronoUnit.SECONDS)
+        if (timeRemaining < 0L)
+            return TimerWarningStatus.LOCKED
 
-        return OffsetDateTime.of(
+        val hoursUntilLocked = OffsetDateTime.of(
             LocalDateTime.ofEpochSecond(timeRemaining, 0, ZoneOffset.UTC),
             ZoneOffset.UTC
-        ).format(timerFormatter)
+        ).truncatedTo(ChronoUnit.HOURS)
+
+        var status =
+            if (timeRemaining == 0L) TimerWarningStatus.LOCKED else TimerWarningStatus.HEALTHY
+
+        // TODO: could tidy this up and also re-write logic so that they are warned on the hour too
+        when (countryIsoCode) {
+            CountryIsoCode.UG -> {
+                if (hoursUntilLocked.hour < 3)
+                    status = TimerWarningStatus.WARNING
+            }
+
+            CountryIsoCode.KE -> {
+                if (hoursUntilLocked.hour < 2)
+                    status = TimerWarningStatus.WARNING
+            }
+        }
+
+        return status
     }
+
+    private fun getFriendlyTimeRemaining(
+        timeRemaining: Long
+    ): String {
+        return if (timeRemaining < 0L)
+            "00:00:00"
+        else
+            OffsetDateTime.of(
+                LocalDateTime.ofEpochSecond(timeRemaining, 0, ZoneOffset.UTC),
+                ZoneOffset.UTC
+            ).format(timerFormatter)
+    }
+
 }

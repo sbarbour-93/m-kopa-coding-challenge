@@ -1,6 +1,9 @@
 package com.scottbarbour.devicelocktimer.data
 
 import com.scottbarbour.devicelocktimer.data.model.ActiveUsagePeriod
+import com.scottbarbour.devicelocktimer.data.model.CountryIsoCode
+import com.scottbarbour.devicelocktimer.data.model.TimerState
+import com.scottbarbour.devicelocktimer.data.model.TimerWarningStatus
 import com.scottbarbour.devicelocktimer.util.TIMER_FORMATTER_PATTERN
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -11,6 +14,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
@@ -56,7 +60,7 @@ class CountdownTimerRepositoryTest {
             coEvery { activeUsagePeriodRemoteDataSource.getLockingInfo() } returns mockk(relaxed = true)
             every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockk(relaxed = true)
 
-            repository.getTimeUntilDeviceLocks().first()
+            repository.getTimerState().first()
 
             coVerify(exactly = 1) { activeUsagePeriodRemoteDataSource.getLockingInfo() }
             coVerify(exactly = 1) { activeUsagePeriodLocalDataSource.storeLockingInfoLocally(any()) }
@@ -69,29 +73,108 @@ class CountdownTimerRepositoryTest {
             justRun { activeUsagePeriodLocalDataSource.storeLockingInfoLocally(any()) }
             every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockk(relaxed = true)
 
-            repository.getTimeUntilDeviceLocks().first()
+            repository.getTimerState().first()
 
             coVerify(inverse = true) { activeUsagePeriodRemoteDataSource.getLockingInfo() }
             coVerify(inverse = true) { activeUsagePeriodLocalDataSource.storeLockingInfoLocally(any()) }
         }
 
     @Test
-    fun `formatting of time until device lock time is displayed in a friendly format for the UI layer`() =
+    fun `derive a healthy timer status`() =
         runTest(testDispatcher) {
-            val mockDeviceLockTime = OffsetDateTime.now().withHour(23).withMinute(0).withSecond(0)
+            val mockDeviceLockTime = OffsetDateTime.of(2022, 7, 16, 23, 0, 0, 0, ZoneOffset.UTC)
             val mockLockingInfo = mockk<ActiveUsagePeriod>()
             every { mockLockingInfo.lockTime } returns mockDeviceLockTime
 
-            val mockCurrentDeviceTime = OffsetDateTime.now().withHour(18).withMinute(0).withSecond(0)
+            val mockCurrentDeviceTime = OffsetDateTime.of(2022, 7, 16, 18, 0, 0, 0, ZoneOffset.UTC)
+
             every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockCurrentDeviceTime
 
-            val expectedResult = "05:00:00"
+            val expectedResult = TimerState(
+                "05:00:00",
+                TimerWarningStatus.HEALTHY
+            )
 
             coEvery { activeUsagePeriodLocalDataSource.getLockingInfo() } returns mockLockingInfo
 
-            val actualResult = repository.getTimeUntilDeviceLocks().first()
+            val actualResult = repository.getTimerState().first()
 
             assertEquals(expectedResult, actualResult)
         }
 
+    @Test
+    fun `derive a warning timer status for Uganda users`() =
+        runTest(testDispatcher) {
+            val mockDeviceLockTime = OffsetDateTime.of(2022, 7, 16, 23, 0, 0, 0, ZoneOffset.UTC)
+            val mockLockingInfo = mockk<ActiveUsagePeriod>()
+            every { mockLockingInfo.lockTime } returns mockDeviceLockTime
+
+            val mockCurrentDeviceTime = OffsetDateTime.of(2022, 7, 16, 21, 0, 0, 0, ZoneOffset.UTC)
+
+            every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockCurrentDeviceTime
+
+            val expectedResult = TimerState(
+                "02:00:00",
+                TimerWarningStatus.WARNING
+            )
+
+            coEvery { activeUsagePeriodLocalDataSource.getLockingInfo() } returns mockLockingInfo
+
+            coEvery { countryIsoCodeDataSource.getCountryIsoCode() } returns CountryIsoCode.UG
+
+            val actualResult = repository.getTimerState().first()
+
+            assertEquals(expectedResult, actualResult)
+        }
+
+    @Test
+    fun `derive a warning timer status for Kenya users`() =
+        runTest(testDispatcher) {
+            val mockDeviceLockTime = OffsetDateTime.of(2022, 7, 16, 23, 0, 0, 0, ZoneOffset.UTC)
+            val mockLockingInfo = mockk<ActiveUsagePeriod>()
+            every { mockLockingInfo.lockTime } returns mockDeviceLockTime
+
+            val mockCurrentDeviceTime = OffsetDateTime.of(2022, 7, 16, 21, 0, 1, 0, ZoneOffset.UTC)
+
+            every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockCurrentDeviceTime
+
+            val expectedResult = TimerState(
+                "01:59:59",
+                TimerWarningStatus.WARNING
+            )
+
+            coEvery { activeUsagePeriodLocalDataSource.getLockingInfo() } returns mockLockingInfo
+
+            coEvery { countryIsoCodeDataSource.getCountryIsoCode() } returns CountryIsoCode.KE
+
+            val actualResult = repository.getTimerState().first()
+
+            assertEquals(expectedResult, actualResult)
+        }
+
+
+    @Test
+    fun `derive a locked timer status`() =
+        runTest(testDispatcher) {
+            val mockDeviceLockTime = OffsetDateTime.of(2022, 7, 16, 23, 0, 0, 0, ZoneOffset.UTC)
+            val mockLockingInfo = mockk<ActiveUsagePeriod>()
+            every { mockLockingInfo.lockTime } returns mockDeviceLockTime
+
+            val mockCurrentDeviceTime = OffsetDateTime.of(2022, 7, 16, 23, 0, 1, 0, ZoneOffset.UTC)
+
+            every { deviceTimeDataSource.getCurrentDeviceTime() } returns mockCurrentDeviceTime
+
+            val expectedResult = TimerState(
+                "00:00:00",
+                TimerWarningStatus.LOCKED
+            )
+
+            coEvery { activeUsagePeriodLocalDataSource.getLockingInfo() } returns mockLockingInfo
+
+            coEvery { countryIsoCodeDataSource.getCountryIsoCode() } returns CountryIsoCode.UG
+
+            val actualResult = repository.getTimerState().first()
+
+            assertEquals(expectedResult, actualResult)
+        }
 }
