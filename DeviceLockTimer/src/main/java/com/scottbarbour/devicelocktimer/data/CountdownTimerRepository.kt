@@ -43,51 +43,50 @@ class CountdownTimerRepository(
             val deviceLockTime = getTimeUntilDeviceLock().truncatedTo(ChronoUnit.SECONDS)
             val currentDeviceTime =
                 deviceTimeDataSource.getCurrentDeviceTime().truncatedTo(ChronoUnit.SECONDS)
-            val timeRemaining = currentDeviceTime.until(deviceLockTime, ChronoUnit.SECONDS)
+
             val countryIsoCode = getCountryIsoCode()
+            val warningTimeForCountry =
+                determineWarningTimeForCountry(countryIsoCode, deviceLockTime)
 
-            val timerStatus = getTimerStatus(countryIsoCode, timeRemaining)
-            val friendlyTimeRemaining = getFriendlyTimeRemaining(timeRemaining)
+            val timerWarningStatus =
+                getTimerWarningStatus(deviceLockTime, currentDeviceTime, warningTimeForCountry)
 
-            emit(TimerState(friendlyTimeRemaining, timerStatus))
+            val friendlyTimeRemaining = getFriendlyTimeRemaining(deviceLockTime, currentDeviceTime)
+
+            emit(TimerState(friendlyTimeRemaining, timerWarningStatus))
         }
     }
 
-    private fun getTimerStatus(
+    private fun determineWarningTimeForCountry(
         countryIsoCode: CountryIsoCode,
-        timeRemaining: Long
-    ): TimerWarningStatus {
-
-        if (timeRemaining < 0L)
-            return TimerWarningStatus.LOCKED
-
-        val hoursUntilLocked = OffsetDateTime.of(
-            LocalDateTime.ofEpochSecond(timeRemaining, 0, ZoneOffset.UTC),
-            ZoneOffset.UTC
-        ).truncatedTo(ChronoUnit.HOURS)
-
-        var status =
-            if (timeRemaining == 0L) TimerWarningStatus.LOCKED else TimerWarningStatus.HEALTHY
-
-        // TODO: could tidy this up and also re-write logic so that they are warned on the hour too
-        when (countryIsoCode) {
-            CountryIsoCode.UG -> {
-                if (hoursUntilLocked.hour < 3)
-                    status = TimerWarningStatus.WARNING
-            }
-
-            CountryIsoCode.KE -> {
-                if (hoursUntilLocked.hour < 2)
-                    status = TimerWarningStatus.WARNING
-            }
+        deviceLockTime: OffsetDateTime
+    ): OffsetDateTime {
+        return when (countryIsoCode) {
+            CountryIsoCode.UG -> deviceLockTime.minusHours(3L)
+            CountryIsoCode.KE -> deviceLockTime.minusHours(2L)
         }
+    }
 
-        return status
+    private fun getTimerWarningStatus(
+        deviceLockTime: OffsetDateTime,
+        currentDeviceTime: OffsetDateTime,
+        warningTimeForCountry: OffsetDateTime
+    ): TimerWarningStatus {
+        return if (currentDeviceTime.isBefore(warningTimeForCountry)) {
+            TimerWarningStatus.HEALTHY
+        } else if (currentDeviceTime.isAfter(deviceLockTime)) {
+            TimerWarningStatus.LOCKED
+        } else {
+            TimerWarningStatus.WARNING
+        }
     }
 
     private fun getFriendlyTimeRemaining(
-        timeRemaining: Long
+        deviceLockTime: OffsetDateTime,
+        currentDeviceTime: OffsetDateTime
     ): String {
+        val timeRemaining = currentDeviceTime.until(deviceLockTime, ChronoUnit.SECONDS)
+
         return if (timeRemaining < 0L)
             "00:00:00"
         else
