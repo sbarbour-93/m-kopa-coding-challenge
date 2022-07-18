@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     implementation 'com.google.android.material:material:1.6.1'
 
-    // My library module that will (hopefully) be used by many teams
+    // the device lock timer module. See 'how to' guide in the module's README for setup instructions.
     implementation project(path: ':DeviceLockTimer')
 
     def compose_activity_version = "1.5.0"
