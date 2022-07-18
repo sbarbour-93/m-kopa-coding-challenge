@@ -35,14 +35,14 @@ class CountdownTimerRepositoryTest {
 
     private val timerFormatter = DateTimeFormatter.ofPattern(TIMER_FORMATTER_PATTERN)
 
-    private lateinit var repository: CountdownTimerRepository
+    private lateinit var repository: DeviceLockTimerRepository
 
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
         MockKAnnotations.init(this, relaxed = true)
-        repository = CountdownTimerRepository(
+        repository = DeviceLockTimerRepository(
             activeUsagePeriodRemoteDataSource,
             activeUsagePeriodLocalDataSource,
             countryIsoCodeDataSource,

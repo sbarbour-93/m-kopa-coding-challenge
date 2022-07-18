@@ -1,7 +1,7 @@
 package com.scottbarbour.devicelocktimer.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.scottbarbour.devicelocktimer.data.CountdownTimerRepository
+import com.scottbarbour.devicelocktimer.data.DeviceLockTimerRepository
 import com.scottbarbour.devicelocktimer.data.model.TimerState
 import com.scottbarbour.devicelocktimer.data.model.TimerWarningStatus
 import io.mockk.MockKAnnotations
@@ -22,15 +22,15 @@ import kotlin.test.assertEquals
 
 
 @ExperimentalCoroutinesApi
-class CountdownTimerViewModelTest {
+class DeviceLockTimerViewModelTest {
 
     @get:Rule
     val rule: TestRule = InstantTaskExecutorRule()
 
     @MockK
-    private lateinit var repository: CountdownTimerRepository
+    private lateinit var repository: DeviceLockTimerRepository
 
-    private lateinit var viewModel: CountdownTimerViewModel
+    private lateinit var viewModel: DeviceLockTimerViewModel
 
     private val expectedTimerState = TimerState(
         "05:00:00",
@@ -44,7 +44,7 @@ class CountdownTimerViewModelTest {
         MockKAnnotations.init(this, relaxed = true)
         coEvery { repository.getTimerState() } returns flowOf(expectedTimerState)
 
-        viewModel = CountdownTimerViewModel(repository)
+        viewModel = DeviceLockTimerViewModel(repository)
     }
 
     @Test

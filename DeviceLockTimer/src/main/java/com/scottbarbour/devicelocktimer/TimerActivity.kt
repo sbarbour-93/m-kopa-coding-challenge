@@ -12,6 +12,5 @@ class TimerActivity : AppCompatActivity() {
         startKoin {
             modules(timerModules)
         }
-        setContentView(R.layout.activity_timer)
     }
 }

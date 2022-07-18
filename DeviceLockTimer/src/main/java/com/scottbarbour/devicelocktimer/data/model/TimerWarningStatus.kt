@@ -1,9 +1,9 @@
 package com.scottbarbour.devicelocktimer.data.model
 
-import androidx.annotation.ColorRes
+import androidx.compose.ui.graphics.Color
 
-enum class TimerWarningStatus(@ColorRes val timerBackgroundColour: Int) {
-    HEALTHY(android.R.color.holo_green_dark),
-    WARNING(android.R.color.holo_orange_dark),
-    LOCKED(android.R.color.holo_red_dark)
+enum class TimerWarningStatus(val timerBackgroundColour: Color) {
+    HEALTHY(Color.Green),
+    WARNING(Color.Yellow),
+    LOCKED(Color.Red)
 }

@@ -13,7 +13,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-class CountdownTimerRepository(
+class DeviceLockTimerRepository(
     private val activeUsagePeriodRemoteDataSource: ActiveUsagePeriodRemoteDataSource,
     private val activeUsagePeriodLocalDataSource: ActiveUsagePeriodLocalDataSource,
     private val countryIsoCodeDataSource: CountryIsoCodeDataSource,
