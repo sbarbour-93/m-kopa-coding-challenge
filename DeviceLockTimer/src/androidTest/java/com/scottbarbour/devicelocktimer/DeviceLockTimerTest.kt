@@ -28,4 +28,36 @@ class DeviceLockTimerTest {
 
         composeTestRule.onNodeWithText(friendlyTimeRemaining).assertIsDisplayed()
     }
+
+    @Test
+    fun deviceLockTimerWithWarningStatus() {
+
+        val friendlyTimeRemaining = "02:00:00"
+
+        val mockWarningStatus = TimerState(friendlyTimeRemaining, TimerWarningStatus.WARNING)
+        composeTestRule.setContent {
+            MaterialTheme {
+                DeviceLockTimer(state = mockWarningStatus)
+            }
+        }
+
+        composeTestRule.onNodeWithText(friendlyTimeRemaining).assertIsDisplayed()
+        composeTestRule.onNodeWithText(TimerWarningStatus.WARNING.message).assertIsDisplayed()
+    }
+
+    @Test
+    fun deviceLockTimerWithLockedStatus() {
+
+        val friendlyTimeRemaining = "00:00:00"
+
+        val mockErrorStatus = TimerState(friendlyTimeRemaining, TimerWarningStatus.LOCKED)
+        composeTestRule.setContent {
+            MaterialTheme {
+                DeviceLockTimer(state = mockErrorStatus)
+            }
+        }
+
+        composeTestRule.onNodeWithText(friendlyTimeRemaining).assertIsDisplayed()
+        composeTestRule.onNodeWithText(TimerWarningStatus.LOCKED.message).assertIsDisplayed()
+    }
 }
