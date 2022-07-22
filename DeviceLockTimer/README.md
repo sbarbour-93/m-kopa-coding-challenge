@@ -14,3 +14,8 @@ To include the Device Lock Timer library in your project add the following to yo
 4. Within your screen composable, call the `startTimer()` method of the view model. This will start the device lock timer business logic and update the live data which you have setup an observer for in the previous step
 
 You're all setup and the Device Lock Timer will countdown to 11PM. Giving a warning status 3 hours before as per the problem statement
+
+# Things I would've liked to improve:
+
+1. Better UI tests. I couldn't find a sound way of checking the background colour of a Composable. In future, I'd like the check the colours matched the timer states which I had managed to do in V1 with View-based UI.
+2. Devise way so that user cannot change device time and manipulate the lock timer (using time from a server as single source of truth)
