@@ -1,13 +1,16 @@
 package com.scottbarbour.devicelocktimer.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,28 +21,33 @@ import com.scottbarbour.devicelocktimer.data.model.TimerWarningStatus
 
 @Composable
 fun DeviceLockTimer(state: TimerState) {
-    Column(
-        modifier = Modifier
-            .background(color = state.timerWarningStatus.timerBackgroundColour)
-            .padding(15.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = state.friendlyTimeRemaining,
-            style = MaterialTheme.typography.body1,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp
-        )
-        if (state.timerWarningStatus.message.isNotBlank()) {
-            Text(
-                text = state.timerWarningStatus.message,
-                style = MaterialTheme.typography.body2,
-                fontStyle = FontStyle.Italic,
-                fontSize = 12.sp
-            )
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(color = state.timerWarningStatus.timerBackgroundColour)
+                .padding(15.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = state.friendlyTimeRemaining,
+                    style = MaterialTheme.typography.body1,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+                if (state.timerWarningStatus.message.isNotBlank()) {
+                    Text(
+                        text = state.timerWarningStatus.message,
+                        style = MaterialTheme.typography.body2,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+
         }
     }
-}
 
 @Preview
 @Composable
